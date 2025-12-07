@@ -2,88 +2,86 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report
-import joblib
+from sklearn.metrics import accuracy_score, classification_report, f1_score, confusion_matrix
 from sklearn.utils import resample
+import joblib
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-# -----------------------------
-# Step 1: Load training dataset
-# -----------------------------
-train_file = 'Data/player_rank_dataset_noitems.csv'
-player_data = pd.read_csv(train_file)
+player_data = pd.read_csv('Data/player_rank_dataset.csv')
 
-# -----------------------------
-# Step 2: Upsample minority ranks
-# -----------------------------
-# Separate each rank
 rank_counts = player_data['RankName'].value_counts()
-max_count = rank_counts.max()  # target number of samples per rank
+max_count = rank_counts.max()
 
 upsampled_frames = []
 for rank in rank_counts.index:
     rank_df = player_data[player_data['RankName'] == rank]
     if len(rank_df) < max_count:
-        rank_df = resample(rank_df,
-                           replace=True,  # upsample with replacement
-                           n_samples=max_count,
-                           random_state=42)
+        rank_df = resample(rank_df, replace=True, n_samples=max_count, random_state=42)
     upsampled_frames.append(rank_df)
 
-player_data_balanced = pd.concat(upsampled_frames).reset_index(drop=True)
-print("Balanced dataset counts:\n", player_data_balanced['RankName'].value_counts())
+player_balanced = pd.concat(upsampled_frames).reset_index(drop=True)
 
-# -----------------------------
-# Step 3: Encode categorical features
-# -----------------------------
-# Lane
+
+plt.figure(figsize=(10,6))
+player_balanced['RankName'].value_counts().sort_index().plot(kind='bar', color='skyblue')
+plt.xlabel("Rank")
+plt.ylabel("Number of players")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig("rank_distribution.png")  
+plt.close()  
+
 lane_le = LabelEncoder()
-player_data_balanced['lane_encoded'] = lane_le.fit_transform(player_data_balanced['Lane'])
+player_balanced['Lane'] = lane_le.fit_transform(player_balanced['Lane'])
 
-# Champion
 champ_le = LabelEncoder()
-player_data_balanced['champ_encoded'] = champ_le.fit_transform(player_data_balanced['ChampionName'])
+player_balanced['champ'] = champ_le.fit_transform(player_balanced['ChampionName'])
 
-# -----------------------------
-# Step 4: Feature engineering
-# -----------------------------
-player_data_balanced['KDA'] = (player_data_balanced['kills'] + player_data_balanced['assists']) / player_data_balanced['deaths'].replace(0, 1)
-player_data_balanced['GoldPerMin'] = player_data_balanced['TotalGold'] / player_data_balanced['GameDuration'].replace(0, 1)
-player_data_balanced['VisionPerMin'] = player_data_balanced['visionScore'] / player_data_balanced['GameDuration'].replace(0, 1)
 
-# -----------------------------
-# Step 5: Define target and features
-# -----------------------------
-y = player_data_balanced['RankName']
-feature_cols = ['lane_encoded', 'champ_encoded', 'kills', 'deaths', 'assists', 'KDA', 'GoldPerMin', 'VisionPerMin']
-X = player_data_balanced[feature_cols]
+player_balanced['KDA'] = (player_balanced['kills'] + player_balanced['assists']) / player_balanced['deaths'].replace(0, 1)
+player_balanced['GoldPerMin'] = player_balanced['TotalGold'] / player_balanced['GameDuration'].replace(0, 1)
+player_balanced['VisionPerMin'] = player_balanced['visionScore'] / player_balanced['GameDuration'].replace(0, 1)
 
-# -----------------------------
-# Step 6: Train-test split
-# -----------------------------
+
+y = player_balanced['RankName']
+feature_cols = ['Lane', 'champ', 'kills', 'deaths', 'assists', 'KDA', 'GoldPerMin', 'VisionPerMin']
+X = player_balanced[feature_cols]
+
+
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.3, random_state=42, stratify=y
 )
 
-# -----------------------------
-# Step 7: Train Random Forest with class balancing
-# -----------------------------
-rf_clf = RandomForestClassifier(
+
+ModelRf = RandomForestClassifier(
     n_estimators=100,
     max_depth=None,
     class_weight='balanced',
     random_state=42
 )
-rf_clf.fit(X_train, y_train)
+ModelRf.fit(X_train, y_train)
 
-# -----------------------------
-# Step 8: Evaluate model
-# -----------------------------
-y_pred = rf_clf.predict(X_test)
+
+y_pred = ModelRf.predict(X_test)
+
 print("Accuracy on test set:", accuracy_score(y_test, y_pred))
 print(classification_report(y_test, y_pred))
+print("Macro F1-score:", f1_score(y_test, y_pred, average='macro'))
 
-# Save model
-joblib.dump(rf_clf, 'Data/rf_model.pkl')
-print("Model saved as rf_model.pkl")
+cm = confusion_matrix(y_test, y_pred)
+plt.figure(figsize=(10,8))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+            xticklabels=ModelRf.classes_,
+            yticklabels=ModelRf.classes_)
+plt.xlabel("Predicted Rank")
+plt.ylabel("Actual Rank")
+plt.title("Confusion Matrix")
+plt.tight_layout()
+plt.savefig("confusion_matrix.png")
+plt.close()  # Close to prevent blocking
+
+joblib.dump(ModelRf, 'Data/rf_model.pkl')
 joblib.dump(champ_le, 'Data/champ_le.pkl')
-print("Champion LabelEncoder saved!")
+joblib.dump(lane_le, 'Data/lane_le.pkl')
+
