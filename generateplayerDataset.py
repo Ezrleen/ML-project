@@ -18,7 +18,7 @@ PUUID = data["puuid"]
 
 # 2. Fetch ONLY RANKED SOLO/DUO match IDs (queue=420)
 match_ids_url = (
-    f"https://{ROUTING}.api.riotgames.com/lol/match/v5/matches/by-puuid/{PUUID}/ids?queue=420&start=0&count=10&api_key={API_KEY}"
+    f"https://{ROUTING}.api.riotgames.com/lol/match/v5/matches/by-puuid/{PUUID}/ids?queue=420&start=0&count=50&api_key={API_KEY}"
 ) 
 
 response = requests.get(match_ids_url)

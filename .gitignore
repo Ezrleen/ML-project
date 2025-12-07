@@ -5,3 +5,7 @@ Data/MatchTbl.csv
 Data/RankTbl.csv
 Data/SummonerMatchTbl.csv
 Data/TeamMatchTbl.csv
+Data/player_rank_dataset_noitems.csv
+Data/champ_le.pkl
+Data/rf_model.pkl
+tt.csv
