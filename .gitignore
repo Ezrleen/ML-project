@@ -10,3 +10,5 @@ Data/champ_le.pkl
 Data/rf_model.pkl
 .env
 PlayerDataSetFetch.csv
+/Data/ModelRf.pkl
+Data/lane_le.pkl

@@ -65,23 +65,23 @@ ModelRf.fit(X_train, y_train)
 
 y_pred = ModelRf.predict(X_test)
 
-print("Accuracy on test set:", accuracy_score(y_test, y_pred))
+print("acuracy on test set:", accuracy_score(y_test, y_pred))
 print(classification_report(y_test, y_pred))
-print("Macro F1-score:", f1_score(y_test, y_pred, average='macro'))
+print("F1-score:", f1_score(y_test, y_pred, average='macro'))
 
 cm = confusion_matrix(y_test, y_pred)
 plt.figure(figsize=(10,8))
 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
             xticklabels=ModelRf.classes_,
             yticklabels=ModelRf.classes_)
-plt.xlabel("Predicted Rank")
-plt.ylabel("Actual Rank")
-plt.title("Confusion Matrix")
+plt.xlabel("predicted Rank")
+plt.ylabel("actual Rank")
+plt.title("confusion Matrix")
 plt.tight_layout()
 plt.savefig("confusion_matrix.png")
-plt.close()  # Close to prevent blocking
+plt.close()  
 
-joblib.dump(ModelRf, 'Data/rf_model.pkl')
+joblib.dump(ModelRf, 'Data/ModelRf.pkl')
 joblib.dump(champ_le, 'Data/champ_le.pkl')
 joblib.dump(lane_le, 'Data/lane_le.pkl')
 
