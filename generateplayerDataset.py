@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_KEY = os.getenv("API_key")
-API_KEY = "RGAPI-d8c9fed9-a702-450e-a008-6e1d2b771f1f"
 r1=['europe','americas','asia','sea']
 ROUTING=input("give server ").lower()
 while ROUTING not in r1:
