@@ -65,7 +65,7 @@ ModelRf.fit(X_train, y_train)
 
 y_pred = ModelRf.predict(X_test)
 
-print("acuracy on test set:", accuracy_score(y_test, y_pred))
+print("acuracy:", accuracy_score(y_test, y_pred))
 print(classification_report(y_test, y_pred))
 print("F1-score:", f1_score(y_test, y_pred, average='macro'))
 
