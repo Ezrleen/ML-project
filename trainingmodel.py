@@ -83,5 +83,4 @@ plt.close()
 
 joblib.dump(ModelRf, 'Data/ModelRf.pkl')
 joblib.dump(champ_le, 'Data/champ_le.pkl')
-joblib.dump(lane_le, 'Data/lane_le.pkl')
 
