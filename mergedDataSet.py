@@ -48,4 +48,4 @@ drop_cols = [
 playerdata = playerdata.drop(columns=drop_cols)
 
 playerdata.to_csv('Data/player_rank_dataset.csv', index=False)
-print("Player rank dataset (no items, CLASSIC only) ready!")
+print("Player rank dataset saved")

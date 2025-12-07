@@ -2,7 +2,7 @@ import pandas as pd
 import joblib
 import numpy as np
 
-ModelRf = joblib.load('Data/rf_model.pkl')
+ModelRf = joblib.load('Data/ModelRf.pkl')
 champ_le = joblib.load('Data/champ_le.pkl')
 print("Model and encoder loaded!")
 
@@ -44,5 +44,5 @@ print("\nTop 3 champions by win rate (%):")
 print(top_champs)
 
 
-player_data.to_csv('tt_predicted.csv', index=False)
+player_data.to_csv('predicted.csv', index=False)
 print("Predictions saved to tt_predicted.csv")
